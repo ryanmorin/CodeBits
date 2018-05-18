@@ -1,0 +1,60 @@
+import re
+
+''' series of filters that ensure that passwords conform to a specific sequence '''
+
+def q18(pwrds):
+    pwrdslist = pwrds.split(',')
+    temp = []
+    for pwrd in pwrdslist:
+        if len(pwrd)<6 or len(pwrd)>12:
+            continue
+        else:
+            pass
+        if not re.search('[a-z]',pwrd):
+            continue
+        elif not re.search('[A-Z]',pwrd):
+            continue
+        elif not re.search('[0-9]',pwrd):
+            continue
+        elif not re.search('[$#@]',pwrd):
+            continue
+        elif re.search('\s',pwrd):
+            continue
+        else:
+            pass
+        temp.append(pwrd)
+    return (temp)
+            
+pwrds = ('ABd1234@1,a F1#,2w3E*,2We3345')
+
+''' returns the number of steps back to the beginning point. I used the cartesian plane as a mental model (0,0) is the starting point. '''
+
+def q21(t):
+    start = [0,0]
+    for i in t:
+        if i[0] == "UP":
+            start[1] = (start[1] + i[1])
+        elif i[0] == "DOWN":
+            start[1] = (start[1] - i[1])
+        elif i[0] == "LEFT":
+            start[0] = (start[0] + i[1])
+        else:
+            start[0] = (start[0] - i[1])
+    steps = abs(start[0]) + abs(start[1])
+    return ("You are {} steps away from your starting point".format(steps))
+    
+t1 = [('UP', 3), ('DOWN', 15), ('LEFT',5), ('RIGHT',13)]
+
+''' Word count using a dictionary '''
+
+def wordcount(s):
+    d = dict()
+    words = s.split(" ")
+    for word in words:
+        if word not in d:
+            d[word] = 1
+        else:
+            d[word] = d[word] + 1
+    return d
+
+print (wordcount('New to Python or choosing between Python 2 and Python 3? Read Python 2 or Python 3'))
