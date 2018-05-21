@@ -58,3 +58,40 @@ def wordcount(s):
     return d
 
 print (wordcount('New to Python or choosing between Python 2 and Python 3? Read Python 2 or Python 3'))
+
+'''
+pswrd() generates a random 6 character password - notice the pgrm uses choice to select which function to call 
+'''
+import random as r
+
+def randsym():
+    sym = '!@#$%^&*()_+=<>?'
+    return sym[r.randint(0,len(sym)-1)]
+
+def randltr():
+    ltr ='abcdefghijklmnopqrstuvwxyz'
+    return ltr[r.randint(0,len(ltr)-1)]
+
+def randultr():
+    ultr ='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    return ultr[r.randint(0,len(ultr)-1)]
+
+def randnum():
+    num = '0123456789'
+    return num[r.randint(0,len(num)-1)]
+
+randcharlist = [randsym, randltr, randnum, randultr]
+
+def pswrd():
+    PwrdStrength = input("Would you like your pswrd strong or weak?")
+    weakpwrd = ['happy','chugle','zoomer']
+    strongpwrd = []
+    if PwrdStrength == 'weak':
+        pwrdindex = r.randint(0,2)
+        return ("Your password is: {}".format(weakpwrd[pwrdindex]))
+    else:
+        for i in range(6):
+            strongpwrd.append(r.choice(randcharlist)())
+        return ("Your password is: {}".format("".join(strongpwrd)))
+    
+print (pswrd())
