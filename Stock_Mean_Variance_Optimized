@@ -1,0 +1,147 @@
+'''
+import pandas as pd
+import numpy as np
+import matplotlib.pylab as plt
+from math import sqrt
+from scipy.optimize import minimize
+from bokeh.plotting import figure, show
+from bokeh.models import Range1d
+from bokeh.io import output_notebook
+output_notebook()
+import sys
+
+stockdata = pd.read_csv('C:/Users/rm2019/Documents/Python Scripts/stock.csv', index_col='Date')
+
+'''
+
+data = (stockdata / stockdata.shift(252)-1)
+
+'''
+
+default_colors = [(165,0,38),(215,48,39),(244,109,67),(253,174,97),(254,224,144),(255,255,191),(224,243,248),(171,217,233),(116,173,209),(69,117,180),(49,54,149),(66,244,140),(255,0,255)]
+default_colors = [default_colors[k] for k in [0,10,2,8,4,6,1,9,3,7,11,12]]
+
+'''
+
+def print_portfolio(p):
+    vals = 100.0 * p.sort_values(ascending=False)
+    ndx = 0
+    for v in vals.iteritems():
+        if v[1] == 0:
+            continue
+        if ndx == 4:
+            print('')
+            ndx = 0 
+        sys.stdout.write('  %4s: %5.1f%%'%v)
+        ndx += 1
+    print('')
+    print('')
+    print('Expected return: {:4.2f}%'.format(port_mean(p) * 100))
+    print('Standard deviation: {:4.2f}%'.format(port_risk(p) *100))
+    print('Maximum drawdown: {:4.2f}%'.format(sum(p * data.min()) *100))
+
+def port_mean(p):
+    return means.dot(p)
+
+def port_risk(p):
+    return sqrt(cmat.dot(p).dot(p))
+
+def port_growth(p):
+    return cum_growth(data.dot(p))
+
+def cum_growth(x):
+    x0 = pd.DataFrame(1,columns=x.columns,index=x.index)
+    x = x0.append(x+1).cumprod()
+    return x
+
+'''
+
+means = data.mean()
+cmat = data.cov()
+stds = data.std()
+syms = data.columns
+maxret = means.max()
+minret = means.min()
+maxret_sym = means.idxmax()
+minret_sym = means.idxmin()
+maxvar_sym = stds.idxmax()
+minvar_sym = stds.idxmin()
+N = data.shape[1]
+p_equal = np.full(N, 1.0/N)
+
+'''
+
+print('Maximum return:   {}: {:+5.2f}% +/- {:4.2f}%'.format(maxret_sym,means[maxret_sym]*100,stds[maxret_sym]*100))
+print('Maximum variance: {}: {:+5.2f}% +/- {:4.2f}%'.format(maxvar_sym,means[maxvar_sym]*100,stds[maxvar_sym]*100))
+print('Minimum return:   {}: {:+5.2f}% +/- {:4.2f}%'.format(minret_sym,means[minret_sym]*100,stds[minret_sym]*100))
+print('Minimum variance: {}: {:+5.2f}% +/- {:4.2f}%'.format(minvar_sym,means[minvar_sym]*100,stds[minvar_sym]*100))
+print('Equal allocation:      {:+5.2f}% +/- {:4.2f}%'.format(port_mean(p_equal)*100,port_risk(p_equal)*100))
+extremes = { maxret_sym, minret_sym, maxvar_sym, minvar_sym }
+
+'''
+
+n_pts = 50000
+X = np.random.uniform(size=(n_pts,N+1))
+X[:,0] = 0; X[:,-1] = 1
+X[:,1:-1].sort(axis=1)
+X = np.diff(X,axis=1)
+X = pd.DataFrame(X, columns=data.columns)
+means_X = X.dot(means)
+stds_X = np.sqrt((X*X.dot(cmat)).sum(axis=1))
+mc_minret = means_X.idxmin()
+mc_maxret = means_X.idxmax()
+mc_minrisk = stds_X.idxmin()
+mc_maxrisk = stds_X.idxmax()
+
+'''
+
+means_x_df = pd.DataFrame(means_X, columns=['mean']).rename_axis('portnum')
+stds_x_df = pd.DataFrame(stds_X, columns=['std']).rename_axis('portnum')
+temp_df = means_x_df.join(stds_x_df)
+
+'''
+
+temp_df['mean_rank'] = temp_df['mean'].rank(ascending=1)
+temp_df['std_rank'] = temp_df['std'].rank(ascending=0)
+temp_df['total_rank'] = temp_df.mean_rank + temp_df.std_rank
+optimal_portfolio_id = temp_df.total_rank.idxmax()
+
+'''
+
+fig = figure(tools="pan,box_zoom,reset")
+fig.circle(stds,means,size=5,color=default_colors[0])
+fig.text(stds,means,syms,text_font_size='10px',x_offset=3,y_offset=-2)
+fig.xaxis.axis_label='Standard deviation'
+fig.yaxis.axis_label='Expected return'
+show(fig)
+
+'''
+
+fig = figure(tools="pan,box_zoom,reset")
+fig.circle(stds_X,means_X,size=0.5,alpha=0.1,color=default_colors[0])
+fig.circle(stds,means,size=5,color=default_colors[1])
+fig.circle(port_risk(X.loc[mc_minrisk]),port_mean(X.loc[mc_minrisk]),size=8,color=default_colors[10],legend='Minimum risk')
+fig.circle(port_risk(X.loc[mc_maxret]),port_mean(X.loc[mc_maxret]),size=8,color=default_colors[0],legend='Maximum return')
+fig.circle(port_risk(X.loc[optimal_portfolio_id]),port_mean(X.loc[optimal_portfolio_id]),size=10,color=default_colors[11],legend='Optimal portfolio')
+fig.text(stds,means,syms,text_font_size='10px',alpha=0.5,x_offset=3,y_offset=-2)
+fig.xaxis.axis_label='Standard deviation'
+fig.yaxis.axis_label='Expected return'
+show(fig)
+
+'''
+
+print("The following is the minimum risk portfolio:")
+print("")
+print_portfolio(X.loc[mc_minrisk])
+
+'''
+
+print("The following is the maximum return portfolio:")
+print("")
+print_portfolio(X.loc[mc_maxret])
+
+'''
+
+print("The following is the optimal portfolio:")
+print("")
+print_portfolio(X.loc[optimal_portfolio_id])
