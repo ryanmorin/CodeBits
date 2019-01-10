@@ -1,0 +1,45 @@
+import pandas as pd
+import numpy as np
+
+xl = pd.ExcelFile('C:/Users/rm2019/Documents/Python Scripts/RevenueByCustomer.xlsx')
+xl.sheet_names
+revenue_data = xl.parse("data")
+
+revenue_data.head()
+
+# clean customer name by splitting the customer legal entity from the full name
+clean_customer_name = revenue_data['CustomerName'].str.split("-").str[0].tolist()
+
+# negative revenue is a return, positive is a sale and zero is nothing
+revenue_data['Product_Flag'] = revenue_data.USD_FY19_Plan_Rate.apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
+revenue_data.head()
+
+# data from correct period
+revenue_data = revenue_data[revenue_data['Period'] == 'Dec 2018']
+
+# subset of the full data file
+temp = revenue_data[['CustomerName','ProductFamily','Product_Flag']]
+
+# function to turn the sum into either -1,1,0 needed because summing the product flag
+def product_exist(x):
+    try:
+        return x / abs(x)
+    except:
+        return x
+newdata = temp.groupby(['CustomerName','ProductFamily']).agg(np.sum).apply(lambda x: product_exist(x)).fillna(int(0)).reset_index()
+
+# get rid of the zero product_flag
+no_zero_df = newdata[newdata.Product_Flag > 0]
+no_zero_df.count()
+
+#pull only the negative products
+negs = newdata.loc[newdata['Product_Flag'] == -1]
+
+# create a mask - is the CustomerName and the associated product family from the negatives in the non-zero list of customers
+mask = ((no_zero_df['CustomerName'].isin(negs['CustomerName'])) & (no_zero_df['ProductFamily'].isin(negs['ProductFamily'])))
+
+# save to csv those records where the CustomerName + ProductFamily dont ("~") match the mask
+# this is not a perfect sort - if someone makes and entry, reverses it and then makes it again for the same amount, none of the records
+# will be included - I actually want one of the records to be included but based on the data file I dont have enough to
+# to create a more accurate filter
+no_zero_df[~mask].to_csv('C:/Users/rm2019/Documents/Python Scripts/temp.csv')
