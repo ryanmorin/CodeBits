@@ -1,0 +1,152 @@
+__author__ = 'rmorin'
+#
+# 031215 version
+#
+import csv
+#
+def ratingassignment():
+    count = 0
+    trialCount = 810000
+    slotList = []
+    hhrating = 0
+    streakList = []
+    targetList = []
+    slots = open('C:/Users/rmorin.NW/Desktop/TimeSlot2015.txt', 'r')
+    ratingTarget = open('C:/Users/rmorin.NW/Desktop/ratingTarget.txt', 'w')
+    dict1 = {'1W': '3.7', '1L': '3.2', '2W': '3.7', '2L': '2.9', '3W': '3.7', '3L': '2.9', '4W': '3.74',
+             '4L': '2.9', '5W': '3.77', '5L': '2.9', '6W': '4.15', '6L': '2.9   ', '7W': '4.19', '7L': '2.80',
+             '8W': '4.24', '8L': '2.8', '9W': '4.28', '9L': '2.7', '10W': '4.3', '10L': '2.67', '11W': '4.36',
+             '11L': '2.65', '12W': '4.41', '12L': '2.6', '13W': '4.45', '13L': '2.57', '14W': '4.50', '14L': '2.3',
+             '15W': '4.54', '15L': '2.3', '16W': '4.59', '16L': '2.3', '17W': '4.63', '17L': '2.3',
+             '18W': '4.68', '18L': '2.3', '19W': '4.73', '19L': '2.3', '20W': '4.77', '20L': '2.3',
+             '21W': '4.82', '21L': '2.3','22W': '4.87', '22L': '2.3'}
+    dict2 = {'1W': '4.5', '1L': '4.6', '2W': '4.9', '2L': '4.0', '3W': '5.1', '3L': '3.7', '4W': '5.3',
+             '4L': '3.4', '5W': '5.5', '5L': '3.1', '6W': '5.75', '6L': '3.98', '7W': '5.98', '7L': '2.98',
+             '8W': '6.22', '8L': '2.98', '9W': '6.47', '9L': '2.98', '10W': '6.73', '10L': '2.98', '11W': '7.0',
+             '11L': '2.98', '12W': '7.28', '12L': '2.98', '13W': '7.57', '13L': '2.98', '14W': '7.87', '14L': '2.98',
+             '15W': '8.18', '15L': '2.98', '16W': '8.51', '16L': '2.98', '17W': '8.85', '17L': '2.98',
+             '18W': '9.20', '18L': '2.98','19W': '9.57', '19L': '2.98','20W': '9.95', '20L': '2.98',
+             '21W': '10.35', '21L': '2.98','22W': '10.77', '22L': '2.98'}
+    dict3 = {'1W': '5.98', '1L': '4.75', '2W': '5.98', '2L': '4.29', '3W': '6.5', '3L': '4.10', '4W': '6.5',
+             '4L': '4.36', '5W': '6.5', '5L': '3.99', '6W': '6.9', '6L': '3.4', '7W': '7.31', '7L': '3.97',
+             '8W': '7.75', '8L': '3.70', '9W': '8.15', '9L': '3.3', '10W': '8.50', '10L': '3.3', '11W': '9.0',
+             '11L': '2.37', '12W': '9.5', '12L': '1.66', '13W': '10.1', '13L': '2.81', '14W': '10.7', '14L': '5.09',
+             '15W': '11.3', '15L': '3.3','16W': '11.9', '16L': '3.3','17W': '12.6', '17L': '3.3',
+             '18W': '13.3', '18L': '3.3','19W': '14.1', '19L': '3.3','20W': '14.95', '20L': '3.3',
+             '21W': '15.8', '21L': '3.3','22W': '16.8', '22L': '3.3'}
+# transfering the string from the text file to a list
+    for line in slots:
+        slotList.append(line)
+
+# Using the game slot in the slotList in my conditional statements to trigger the use of the correct dictionary
+    with open('C:/Users/rmorin.NW/Desktop/2015BBStreak.txt') as streakTarget:
+        reader = csv.reader(streakTarget)
+        for row in reader:
+            for item in row:
+                if item != '':
+                    streakList.append(item)
+#
+    while count < len(streakList):
+        for i in slotList:
+            for t in i:
+                if t == '2':
+                    streak = streakList[count]
+                    hhrating = dict2[streak]
+                    count += 1
+                elif t == '3':
+                    streak = streakList[count]
+                    hhrating = dict3[streak]
+                    count += 1
+                elif t == '1':
+                    streak = streakList[count]
+                    hhrating = dict1[streak]
+                    count += 1
+                ratingTarget.write(hhrating), ratingTarget.write(',')
+            ratingTarget.write('\n')
+#
+    slots.close()
+    streakTarget.close()
+    ratingTarget.close()
+#
+ratingassignment()
+
+
+**********************************************************************************************************************
+
+__author__ = 'rmorin'
+#
+# The function uses the output from BaseBallSeason and explicitly calls
+# out the inter season streaks
+#
+def streak(trialCount):
+
+    target = open('C:/Users/rmorin.NW/Desktop/2015GameOutcome.txt', 'r')
+    streakTarget = open('C:/Users/rmorin.NW/Desktop/2015BBStreak.txt', 'w')
+    count = 1
+    targetList = []
+    for line in target:
+        targetList.append(line)
+#
+# This part of the program makes the win or loss streak explicit
+#
+    for season in range(trialCount):
+        tempString = ''.join(targetList[season])
+        if tempString[0] == '1':
+            outcome = '1W'
+        else:
+            outcome = '1L'
+        streakTarget.write(outcome), streakTarget.write(',')
+        for gameNumber in range(len(tempString) - 2):
+            try:
+                gameDelta = int(tempString[gameNumber + 1]) + int(tempString[gameNumber])
+                inflection = int(gameDelta % 2)
+            except ValueError:
+                break
+            if inflection == 0 and tempString[gameNumber] == '1':
+                count += 1
+                outcome = str(count) + 'W'
+            elif inflection == 0 and tempString[gameNumber] == '0':
+                count += 1
+                outcome = str(count) + 'L'
+            elif inflection != 0:
+                if tempString[gameNumber] == '1':
+                    count = 1
+                    outcome = str(count) + 'L'
+                else:
+                    count = 1
+                    outcome = str(count) + 'W'
+            streakTarget.write(outcome), streakTarget.write(',')
+        streakTarget.write('\n')
+        count = 1
+    target.close()
+    streakTarget.close()
+
+streak(5000)
+
+******************************************************************************************************
+
+__author__ = 'ryanmorin'
+
+# The program provides a random Mariners season based on the expectation that M's win on average 91 games
+# The 91 games is based on FoxSports WAR calculation. Note 25 year history indicates that 91 games is good enough
+# for a wild card but they'd need on average 94 wins to win their division.
+
+import random
+
+def randomSeason(trials, wins):
+
+    target = open('C:/Users/rmorin.NW/Desktop/2015GameOutcome.txt', 'w')
+    winPercentage = (162-float(wins))/162
+    for n in range(trials):
+        for i in range(162):
+            if random.random() > winPercentage:
+# If the team wins, put 1
+                outcome = "1"
+# If the team loses, put 0
+            else:
+                outcome = "0"
+            target.write(outcome)
+        target.write('\n')
+    target.close()
+
+randomSeason(5000,91)
