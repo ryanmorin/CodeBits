@@ -1,0 +1,57 @@
+' This uses For loops, Case statements, Arrays, MsgBox
+
+Sub fruit_names_final()
+
+Dim whatrplArray(6, 2) As String
+Dim myWorksheet As Worksheet
+Dim i As Integer
+Dim answer As Integer
+    
+i = 1
+    
+whatrplArray(1, 1) = "Oranje"
+whatrplArray(2, 1) = "Aple"
+whatrplArray(3, 1) = "Bannana"
+whatrplArray(4, 1) = "Grpe"
+whatrplArray(5, 1) = "Chirry"
+whatrplArray(6, 1) = "Charry"
+    
+whatrplArray(1, 2) = "Orange"
+whatrplArray(2, 2) = "Apple"
+whatrplArray(3, 2) = "Banana"
+whatrplArray(4, 2) = "Grape"
+whatrplArray(5, 2) = "Cherry"
+whatrplArray(6, 2) = "Cherry"
+    
+answer = MsgBox("Would you like to make changes to all worksheets in the workbook?", vbYesNoCancel)
+    
+Select Case answer
+
+Case Is = vbYes
+    
+    For Each myWorksheet In Sheets
+    myWorksheet.Activate
+    
+    For i = LBound(whatrplArray, 1) To UBound(whatrplArray, 1)
+    With Cells
+        .Replace What:=whatrplArray(i, 1), Replacement:=whatrplArray(i, 2)
+    End With
+    Next i
+        
+    Next myWorksheet
+    
+Case Is = vbNo
+
+    For i = LBound(whatrplArray, 1) To UBound(whatrplArray, 1)
+    With Cells
+        .Replace What:=whatrplArray(i, 1), Replacement:=whatrplArray(i, 2)
+    End With
+    Next i
+    
+Case Else
+
+    MsgBox "Cancel"
+
+End Select
+
+End Sub
